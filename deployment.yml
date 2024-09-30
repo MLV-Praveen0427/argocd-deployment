@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: test-node-container
-        image: MLV-Praveen0427/node-argocd:30
+        image: MLV-Praveen0427/node-argocd:docker
         ports:
         - containerPort: 4000
         env:
