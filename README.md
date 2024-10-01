@@ -1,5 +1,9 @@
-very important what jenkins pipeline build number that no should enter in 
-
+very important what jenkins pipeline build number that no should enter in dyploymnet file 
+spec:
+      containers:
+      - name: test-node-container
+        image: saranraj023/my-node-argocd:17
+-----------
 Streamline Kubernetes CICD with Jenkins, Helm, and ArgoCD Integration, Leveraging Webhooks for Seamless Automation. Learn to optimize deployment workflows, manage Helm charts, and automate pipelines effortlessly. Enhance scalability, reliability, and speed in application delivery with this comprehensive CI/CD solution.
 
 Blog Post :- https://dahit.hashnode.dev/cicd-with-jenkins-helm-argocd-in-kubernetes
