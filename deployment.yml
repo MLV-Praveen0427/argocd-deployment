@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: test-node-container
-        image: saranraj023/my-node-argocd:17
+        image: saranraj023/my-node-argocd:17   #17 is the jenkins last build number
         ports:
         - containerPort: 4000
         env:
