@@ -2,38 +2,35 @@ pipeline {
     agent any
 
     environment {
-        // Initialize variables
-        GIT_USERNAME = 'MLV-Praveen0427'  // Update with your GitHub username
-        GIT_TOKEN_CREDENTIALS_ID = 'github-personal-token'  // Update with the ID of your GitHub PAT credential
-    }
-
-    parameters {
-        string(name: 'DOCKERTAG', defaultValue: '', description: 'Docker tag for the image')
+        DOCKER_IMAGE_NAME = "saranraj023/my-node-argocd"
+        DOCKER_IMAGE_TAG = "${env.BUILD_NUMBER}"  // This is the tag for the Docker image, using the build number
     }
 
     stages {
-        stage('Clone repository') {
+        stage('Checkout') {
             steps {
-                // Specify the repository URL and branch explicitly
-                git branch: 'main', url: 'https://github.com/MLV-Praveen0427/argocd-deployment.git'
+                // Checkout the source code from your Git repository
+                git branch: 'main',
+                    url: 'https://github.com/MLV-Praveen0427/CICD-jenkins-helm-argocd.git'
             }
         }
 
-        stage('Update GIT') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Retrieve Jenkins credentials for GitHub using PAT
-                    withCredentials([string(credentialsId: GIT_TOKEN_CREDENTIALS_ID, variable: 'GIT_TOKEN')]) {
-                        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                            sh "git config user.email lakshmipraveen0427@gmail.com"
-                            sh "git config user.name MLV-Praveen0427"
-                            sh "cat deployment.yml"
-                            sh "sed -i 's+MLV-Praveen0427/node-argocd.*+MLV-Praveen0427/node-argocd:${params.DOCKERTAG}+g' deployment.yml"
-                            sh "cat deployment.yml"
-                            sh "git add ."
-                            sh "git commit -m 'Done by Jenkins Job changemanifest: ${params.DOCKERTAG}'"
-                            sh "git push https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/${GIT_USERNAME}/argocd-deployment.git HEAD:main"
-                        }
+                    // Build the Docker image with the specified name and tag
+                    sh "docker build --rm -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image to Registry') {
+            steps {
+                script {
+                    // Log in to Docker registry and push the Docker image
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-password', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+                        sh "echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin"
+                        sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
                     }
                 }
             }
@@ -43,9 +40,4 @@ pipeline {
     post {
         success {
             echo 'Pipeline execution successful!'
-        }
-        failure {
-            echo 'Pipeline execution failed!'
-        }
-    }
-}
+
